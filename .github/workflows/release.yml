@@ -1,0 +1,45 @@
+---
+name: "ansible-collection-k3s / release"
+
+"on":
+  push:
+    tags:
+      - "*"
+
+env:
+  COLLECTION_NAMESPACE: jakemalley
+  COLLECTION_NAME: k3s
+  ANSIBLE_GALAXY_TOKEN: ${{ secrets.ANSIBLE_GALAXY_TOKEN }}
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ansible_collections/jakemalley/k3s
+
+jobs:
+  release:
+    name: "ansible-collection-k3s / release"
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          path: "ansible_collections/${{ env.COLLECTION_NAMESPACE }}/${{ env.COLLECTION_NAME }}"
+
+      - name: install
+        run: |
+          python3 -m pip install ansible ansible-lint yamllint
+
+      - name: test
+        run: |
+          ansible-lint .
+
+      - name: build
+        run: |
+          sed 's/^version: \(.*\)$/version: '"${GITHUB_REF#refs/*/}"'/' galaxy.yml.tpl | tee galaxy.yml
+          ansible-galaxy collection build
+
+      - name: upload
+        run: |
+          ansible-galaxy collection publish --token=$ANSIBLE_GALAXY_TOKEN ./$COLLECTION_NAMESPACE-$COLLECTION_NAME-${GITHUB_REF#refs/*/}.tar.gz
