@@ -1,18 +1,20 @@
 ---
 # tasks file for k3s
 
-- name: assert node-token is defined
+- name: assert ansible-node-token is defined
   assert:
     quiet: true
-    that: hostvars[groups['servers'][0]]['__k3s_node_token'] | default("", true) != ""
+    that: hostvars[groups['servers'][0]]['__k3s_ansible_token'] | default("", true) != ""
+  tags: config
 
-- name: write k3s node token to agent nodes
+- name: write k3s ansible token to agent nodes
   copy:
-    dest: "{{ __k3s_node_token_file }}"
+    dest: "{{ __k3s_ansible_token_file }}"
     owner: root
     group: root
     mode: 0400
-    content: "{{ hostvars[groups['servers'][0]]['__k3s_node_token'] }}"
+    content: "{{ hostvars[groups['servers'][0]]['__k3s_ansible_token'] }}"
+  tags: config
 
 - name: create k3s agent config file
   template:
@@ -21,12 +23,15 @@
     owner: root
     group: root
     mode: "0440"
+  tags: config
 
 - name: run installer on agent nodes
   include_tasks: run_installer.yml
+  tags: always
 
 - name: ensure the k3s agent service is started
   service:
     name: "{{ __k3s_service_name }}"
     state: started
     enabled: true
+  tags: service

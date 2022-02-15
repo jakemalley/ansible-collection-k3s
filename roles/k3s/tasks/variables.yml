@@ -8,6 +8,7 @@
       'servers' in group_names and
       groups['servers'][0] == inventory_hostname
     }}"
+  tags: always
 
 - name: set fact for node interfaces
   set_fact:
@@ -19,6 +20,7 @@
         true
       )
     }}"
+  tags: always
 
 - name: set fact for server/agent node ip addresses
   set_fact:
@@ -30,15 +32,18 @@
       groups['agents'] | default([]) |
       map('extract', hostvars, ['ansible_'+__k3s_interface, 'ipv4', 'address'])
     }}"
+  tags: always
 
 - name: set fact for all node ip addresses
   set_fact:
     __k3s_node_ip_addresses: "{{
       __k3s_server_node_ip_addresses + __k3s_agent_node_ip_addresses
     }}"
+  tags: always
 
 - name: set fact for current node ip address
   set_fact:
     __k3s_node_ip_address: "{{
       lookup('vars', 'ansible_'+__k3s_interface)['ipv4']['address']
     }}"
+  tags: always

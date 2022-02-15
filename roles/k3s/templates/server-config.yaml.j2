@@ -13,7 +13,7 @@ server: https://{{ haproxy_keepalived_vip | default(hostvars[groups['servers'][0
 {% endif %}
 
 # server token
-token-file: {{ __k3s_server_token_file }}
+token-file: {{ __k3s_ansible_token_file }}
 
 # cidrs
 cluster-cidr: {{ k3s_cluster_cidr }}

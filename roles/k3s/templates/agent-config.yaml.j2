@@ -5,7 +5,7 @@
 server: https://{{ hostvars[groups['servers'][0]]['ansible_'+__k3s_interface]['ipv4']['address'] }}:6443
 
 # node token
-token-file: {{ __k3s_node_token_file }}
+token-file: {{ __k3s_ansible_token_file }}
 
 # flannel interface + node external ip
 flannel-iface: {{ __k3s_interface }}
