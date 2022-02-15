@@ -32,3 +32,5 @@
       mode: "0755"
     - path: "{{ __k3s_config_file | dirname }}"
       mode: "0750"
+    - path: "{{ __k3s_ansible_token_file | dirname }}"
+      mode: "0750"

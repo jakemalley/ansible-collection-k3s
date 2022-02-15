@@ -1,32 +1,32 @@
 ---
 # tasks file for k3s
 
-- name: set k3s server token
+- name: set k3s ansible token
   block:
-    - name: lookup k3s server token
+    - name: lookup k3s ansible token
       slurp:
-        src: "{{ __k3s_server_token_file }}"
-      register: r_slurp_k3s_server_token
+        src: "{{ __k3s_ansible_token_file }}"
+      register: r_slurp_k3s_ansible_token
       when: __k3s_primary | bool
 
-    - name: set fact for k3s server token
+    - name: set fact for k3s ansible token
       set_fact:
-        __k3s_server_token: "{{ r_slurp_k3s_server_token['content'] | b64decode }}"
+        __k3s_ansible_token: "{{ r_slurp_k3s_ansible_token['content'] | b64decode }}"
       when: __k3s_primary | bool
 
   rescue:
-    - name: generate k3s server token
+    - name: generate k3s ansible token
       set_fact:
-        __k3s_server_token: "{{ lookup('password', '/dev/null chars=ascii_lowercase,ascii_uppercase,digits length=64') }}"
+        __k3s_ansible_token: "{{ lookup('password', '/dev/null chars=ascii_lowercase,ascii_uppercase,digits length=96') }}"
 
   always:
-    - name: write k3s server token
+    - name: write k3s ansible token
       copy:
-        dest: "{{ __k3s_server_token_file }}"
+        dest: "{{ __k3s_ansible_token_file }}"
         owner: root
         group: root
         mode: 0400
-        content: "{{ hostvars[groups['servers'][0]]['__k3s_server_token'] }}"
+        content: "{{ hostvars[groups['servers'][0]]['__k3s_ansible_token'] }}"
 
 - name: create k3s server config file
   template:
@@ -39,7 +39,7 @@
 - name: run installer server nodes
   include_tasks: run_installer.yml
 
-- name: start the k3s server service is started
+- name: ensure the k3s server service is started
   service:
     name: "{{ __k3s_service_name }}"
     state: started
@@ -67,15 +67,3 @@
         owner: root
         group: root
         mode: "0600"
-
-- name: read k3s node token from primary
-  block:
-    - name: lookup k3s node token
-      slurp:
-        src: "{{ __k3s_default_token_file }}"
-      register: r_slurp_k3s_node_token
-
-    - name: set fact for k3s node token
-      set_fact:
-        __k3s_node_token: "{{ r_slurp_k3s_node_token['content'] | b64decode }}"
-  when: __k3s_primary | bool
