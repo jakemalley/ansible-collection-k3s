@@ -6,6 +6,9 @@
     url: "{{ k3s_installer_url }}"
     dest: "{{ __k3s_installer_directory }}/k3s-install.sh"
     mode: "0700"
+  tags:
+    - downloads
+    - installer
 
 - name: download and install helm
   block:
@@ -26,3 +29,4 @@
   when:
     - __k3s_role == 'server'
     - k3s_helm_installer_url | default("", true) != ""
+  tags: helm

@@ -6,6 +6,7 @@
     quiet: true
     that: ansible_os_family in __k3s_supported_os_family
   when: k3s_supported_os_check | bool
+  tags: always
 
 - name: check inventory group membership
   assert:
@@ -13,12 +14,14 @@
     that: >
       'servers' in group_names or
       'agents' in group_names
+  tags: always
 
 - name: set required variables
   import_tasks: variables.yml
 
 - name: include role specific vars
   include_vars: "{{ __k3s_role }}.yml"
+  tags: always
 
 - name: setup os
   import_tasks: setup.yml
@@ -29,10 +32,12 @@
 - name: setup firewall
   include_tasks: firewall-firewalld.yml
   when: k3s_firewall | bool
+  tags: always
 
 - name: setup selinux
   include_tasks: selinux.yml
   when: k3s_selinux | bool
+  tags: always
 
 - name: setup nodes
   include_tasks: "{{ node }}.yml"
@@ -42,3 +47,4 @@
   loop:
     - server
     - agent
+  tags: always

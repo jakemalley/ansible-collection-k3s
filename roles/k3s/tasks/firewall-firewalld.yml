@@ -6,6 +6,9 @@
     name: firewalld
     state: started
     enabled: true
+  tags:
+    - setup-os
+    - firewall
 
 - name: check firewalld default zone
   command: firewall-cmd --get-default-zone
@@ -13,6 +16,9 @@
   changed_when: >
     __k3s_firewalld_default_zone not in r_firewalld_default_zone.stdout
   notify: set firewalld default zone
+  tags:
+    - setup-os
+    - firewall
 
 - name: enable masquerade for k3s
   ansible.posix.firewalld:
@@ -21,6 +27,9 @@
     state: enabled
     permanent: true
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: remove default services
   ansible.posix.firewalld:
@@ -32,6 +41,9 @@
     - dhcpv6-client
     - cockpit
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: allow ssh
   ansible.posix.firewalld:
@@ -40,6 +52,9 @@
     state: enabled
     permanent: true
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: allow 6443/tcp (Kubernetes API) from everywhere
   ansible.posix.firewalld:
@@ -52,6 +67,9 @@
     - __k3s_role == "server"
     - k3s_firewall_allow_api_access | bool
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: allow 6443/tcp (Kubernetes API) from nodes
   ansible.posix.firewalld:
@@ -66,6 +84,9 @@
     - __k3s_role == "server"
     - not k3s_firewall_allow_api_access | bool
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: enable 2379/tcp (embedded Etcd) from server nodes
   ansible.posix.firewalld:
@@ -79,6 +100,9 @@
   when:
     - __k3s_role == "server"
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: enable 2380/tcp (embedded Etcd) from server nodes
   ansible.posix.firewalld:
@@ -92,6 +116,9 @@
   when:
     - __k3s_role == "server"
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: enable 8472/udp (flannel VXLAN) from all nodes
   ansible.posix.firewalld:
@@ -103,6 +130,9 @@
     permanent: true
   loop: "{{ [k3s_node_cidr,] if k3s_node_cidr | default('', true) != '' else __k3s_node_ip_addresses }}"
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: enable 10250/tcp (kubelet) from all nodes
   ansible.posix.firewalld:
@@ -114,6 +144,9 @@
     permanent: true
   notify: reload firewalld
   loop: "{{ [k3s_node_cidr,] if k3s_node_cidr | default('', true) != '' else __k3s_node_ip_addresses }}"
+  tags:
+    - setup-os
+    - firewall
 
 - name: enable http/s for ingress
   ansible.posix.firewalld:
@@ -126,6 +159,9 @@
     - https
   when: k3s_firewall_allow_https_ingress | bool
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: add cluster-cidr to the firewalld trusted zone
   ansible.posix.firewalld:
@@ -134,6 +170,9 @@
     state: enabled
     permanent: true
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: add service-cidr to the firewalld trusted zone
   ansible.posix.firewalld:
@@ -142,6 +181,12 @@
     state: enabled
     permanent: true
   notify: reload firewalld
+  tags:
+    - setup-os
+    - firewall
 
 - name: flush handlers
   meta: flush_handlers
+  tags:
+    - setup-os
+    - firewall

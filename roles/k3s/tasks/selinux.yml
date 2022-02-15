@@ -5,3 +5,6 @@
   ansible.posix.selinux:
     policy: targeted
     state: enforcing
+  tags:
+    - setup-os
+    - selinux

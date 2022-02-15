@@ -11,6 +11,9 @@
           INSTALL_K3S_BIN_DIR: "{{ __k3s_bin_directory }}"
           INSTALL_K3S_EXEC: "{{ __k3s_role }}"
           INSTALL_K3S_SKIP_START: "true"
+      tags:
+        - config
+        - installer
 
     - name: run k3s installer
       command:
@@ -18,6 +21,7 @@
         creates: "{{ __k3s_bin_directory }}/k3s"
       environment: "{{ __k3s_install_env }}"
       register: r_cmd_k3s_install
+      tags: installer
 
 
   always:
@@ -40,3 +44,4 @@
         - type: stdout
         - type: stderr
       when: r_cmd_k3s_install.changed | bool
+      tags: installer

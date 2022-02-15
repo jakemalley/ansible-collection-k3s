@@ -27,6 +27,7 @@
         group: root
         mode: 0400
         content: "{{ hostvars[groups['servers'][0]]['__k3s_ansible_token'] }}"
+  tags: config
 
 - name: create k3s server config file
   template:
@@ -35,19 +36,23 @@
     owner: root
     group: root
     mode: "0440"
+  tags: config
 
 - name: run installer server nodes
   include_tasks: run_installer.yml
+  tags: always
 
 - name: ensure the k3s server service is started
   service:
     name: "{{ __k3s_service_name }}"
     state: started
     enabled: true
+  tags: service
 
 - name: pause for 5 seconds to wait for k3s node token
   pause:
     seconds: 5
+  tags: service
 
 - name: create root's kubeconfig
   block:
@@ -67,3 +72,5 @@
         owner: root
         group: root
         mode: "0600"
+
+  tags: kubeconfig
