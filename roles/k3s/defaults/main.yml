@@ -12,6 +12,9 @@ k3s_helm_installer_url: "https://raw.githubusercontent.com/helm/helm/main/script
 # pre checks
 k3s_supported_os_check: true
 
+## cluster (set based on number of servers by default)
+k3s_ha_cluster:
+
 ## tls SANs
 k3s_tls_san: "cluster.k3s"
 

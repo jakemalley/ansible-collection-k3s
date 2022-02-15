@@ -10,6 +10,13 @@
     }}"
   tags: always
 
+- name: set fact for k3s ha cluster
+  set_fact:
+    __k3s_ha_cluster: "{{ k3s_ha_cluster |
+      default(groups['servers'] | length > 1, true)
+    }}"
+  tags: always
+
 - name: set fact for node interfaces
   set_fact:
     __k3s_interface: "{{

@@ -5,8 +5,10 @@
 write-kubeconfig-mode: 640
 
 {% if __k3s_primary %}
+{% if __k3s_ha_cluster %}
 # primary node; init cluster
 cluster-init: true
+{% endif %}
 {% else %}
 # primary server address for joining the cluster
 server: https://{{ haproxy_keepalived_vip | default(hostvars[groups['servers'][0]]['ansible_'+__k3s_interface]['ipv4']['address'], true) }}:6443
