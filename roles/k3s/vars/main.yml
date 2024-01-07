@@ -4,6 +4,7 @@
 # supported os
 __k3s_supported_os_family:
   - RedHat
+  - Debian
 
 # directories
 __k3s_installer_directory: /opt/k3s
